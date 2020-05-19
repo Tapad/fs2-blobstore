@@ -78,20 +78,20 @@ final class S3Store[F[_]](
 
   override def put(path: Path): Pipe[F, Byte, Unit] = { in =>
     val init: F[(PipedOutputStream, BufferedInputStream)] = F.delay {
-      val os = new PipedOutputStream()
+      val os  = new PipedOutputStream()
       val bis = new BufferedInputStream(new PipedInputStream(os))
       (os, bis)
     }
 
     val consume: ((PipedOutputStream, BufferedInputStream)) => Stream[F, Unit] = ios => {
-      val multiPartUploadThreshold = 10*1024*1024
+      val multiPartUploadThreshold = 10 * 1024 * 1024
       val putToS3 = Stream.eval(blocker.delay {
         val meta = new ObjectMetadata()
         path.size.foreach(meta.setContentLength)
         sseAlgorithm.foreach(meta.setSSEAlgorithm)
         val request = {
           val req = new PutObjectRequest(path.root, path.key, ios._2, meta)
-          req.getRequestClientOptions.setReadLimit(2*multiPartUploadThreshold)
+          req.getRequestClientOptions.setReadLimit(2 * multiPartUploadThreshold)
           req
         }
 
