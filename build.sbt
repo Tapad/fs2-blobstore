@@ -23,7 +23,7 @@ lazy val fs2blobstore = project
   )
   .aggregate(core, s3, sftp, box, gcs)
 
-lazy val core = project
+lazy val core = project.enablePlugins(NexusPublish)
 
 lazy val s3 = project.dependsOn(core % "compile->compile;test->test").enablePlugins(NexusPublish)
 
