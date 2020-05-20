@@ -92,12 +92,12 @@ final class S3Store[F[_]](
         val request = {
           val req = new PutObjectRequest(path.root, path.key, ios._2, meta)
           req.getRequestClientOptions.setReadLimit(2 * multiPartUploadThreshold)
+          objectAcl.foreach(acl => req.setCannedAcl(acl))
           req
         }
 
         transferManager.getConfiguration.setMultipartUploadThreshold(multiPartUploadThreshold.toLong)
         transferManager.upload(request).waitForCompletion()
-        objectAcl.foreach(acl => s3.setObjectAcl(path.root, path.key, acl))
         ()
       })
 
